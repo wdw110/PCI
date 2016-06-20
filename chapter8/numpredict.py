@@ -33,3 +33,9 @@ def wineset1():
 		# 加入数据集
 		rows.append({'input':(rating,age),'result':price})
 	return rows
+
+def euclidean(v1,v2):
+	d = 0.0
+	for i in range(len(v1)):
+		d += (v1[i]-v2[i])**2
+	return math.sqrt(d)
