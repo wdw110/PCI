@@ -39,3 +39,11 @@ def euclidean(v1,v2):
 	for i in range(len(v1)):
 		d += (v1[i]-v2[i])**2
 	return math.sqrt(d)
+
+def getdistances(data,vec1):
+	distancelist = []
+	for i in range(len(data)):
+		vec2 = data[i]['input']
+		distancelist.append((euclidean(vec1,vec2),i))
+	distancelist.sort()
+	return distancelist
