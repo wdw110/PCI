@@ -47,3 +47,43 @@ def getdistances(data,vec1):
 		distancelist.append((euclidean(vec1,vec2),i))
 	distancelist.sort()
 	return distancelist
+
+def knnestimate(data,vec1,k=5):
+	# 得到经过排序的距离值
+	dlist = getdistances(data,vec1)
+	avg = 0.0
+
+	# 对前k项结果求平均
+	for i in range(k):
+		idx = dlist[i][1]
+		avg += data[idx]['result']
+	avg = avg/k
+	return avg
+
+def inverseweight(dist,num=1.0,const=0.1):
+	return num/(dist+const)
+
+def subtractweight(dist,const=1.0):
+	if dist>const:
+		return 0
+	else:
+		return const-dist
+
+def gaussian(dist,sigma=1.0):
+	return math.e**(-dist**2/(2*sigma**2))
+
+def weightedknn(data,vec1,k=5,weightf=gaussian):
+	# 得到距离值
+	dlist = getdistances(data,vec1)
+	avg = 0.0
+	totalweight = 0.0
+
+	# 得到加权平均值
+	for i in range(k):
+		dist = dlist[i][0]
+		idx = dlist[i][1]
+		weight = weightf(dist)
+		avg += weight*data[idx]['result']
+		totalweight += weight
+	avg = avg/totalweight
+	return avg
