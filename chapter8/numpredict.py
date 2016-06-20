@@ -87,3 +87,7 @@ def weightedknn(data,vec1,k=5,weightf=gaussian):
 		totalweight += weight
 	avg = avg/totalweight
 	return avg
+
+def dividedata(data,test=0.05):
+	trainset = []
+	testset = []
