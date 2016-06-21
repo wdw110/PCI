@@ -1,6 +1,7 @@
 #encoding=utf-8
 
 from random import random,randint
+from pylab import *
 import math
 
 weightdomain=[(0,20)]*4
@@ -71,7 +72,7 @@ def subtractweight(dist,const=1.0):
 	else:
 		return const-dist
 
-def gaussian(dist,sigma=1.0):
+def gaussian(dist,sigma=6.0):
 	return math.e**(-dist**2/(2*sigma**2))
 
 def weightedknn(data,vec1,k=5,weightf=gaussian):
@@ -108,7 +109,7 @@ def testalgorithm(algf,trainset,testset):
 		error += (row['result']-guess)**2
 	return error/len(testset)
 
-def crossvalidate(algf,data,trials=100,test=0.05):
+def crossvalidate(algf,data,trials=100,test=0.1):
 	error = 0.0
 	for i in range(trials):
 		trainset,testset = dividedata(data,test)
@@ -121,10 +122,10 @@ def wineset2():
 		rating = random()*50+50
 		age = random()*50
 		aisle = float(randint(1,20))
-		bottlesize = [375.0,750.0,1500.0,3000.0][randint(0,3)]
+		bottlesize = [375.0,750.0,1500.0][randint(0,2)]
 		price = wineprice(rating,age)
 		price *= (bottlesize/750)
-		price *= (random()*0.9+0.2)
+		price *= (random()*0.2+0.9)
 		rows.append({'input':(rating,age,aisle,bottlesize),'result':price})
 	return rows
 
@@ -168,3 +169,30 @@ def probguess(data,vec1,low,high,k=5,weightf=gaussian):
 
 	# 概率等于位于指定范围内的权重值除以所有权重值
 	return nweight/tweight
+
+def cumulativegraph(data,vec1,high,k=5,weightf=gaussian):
+	t1 = arange(0.0,high,0.1)
+	cprob = array([probguess(data,vec1,0,v,k,weightf) for v in t1])
+	plot(t1,cprob)
+	show()
+
+def probabilitygraph(data,vec1,high,k=5,weightf=gaussian,ss=5.0):
+	# 建立一个代表价格的值域范围
+	t1 = arange(0.0,high,0.1)
+
+	# 得到整个值域范围内的所有概率
+	probs = [probguess(data,vec1,v,v+0.1,k,weightf) for v in t1]
+
+	# 通过加上近邻概率的高斯计算结果，对概率值做平滑处理
+	smoothed = []
+	for i in range(len(probs)):
+		sv = 0.0
+		for j in range(0,len(probs)):
+			dist = abs(i-j)*0.1
+			weight = gaussian(dist,sigma=ss)
+			sv += weight*probs[j]
+		smoothed.append(sv)
+	smoothed = array(smoothed)
+
+	plot(t1,smoothed)
+	show()
